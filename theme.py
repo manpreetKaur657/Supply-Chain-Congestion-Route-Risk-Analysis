@@ -18,7 +18,7 @@ CSS = """
     --panel-alt: #16233D;
     --border: #24344F;
     --text: #E8EDF5;
-    --text-dim: #8296B8;
+    --text-dim: #9FB0CC;
     --accent-high: #FF5A3C;
     --accent-med: #F0B429;
     --accent-low: #35D0B8;
@@ -33,7 +33,36 @@ CSS = """
 html, body, [class*="css"] {
     font-family: 'Inter', sans-serif;
 }
-#MainMenu, footer, header {visibility: hidden;}
+#MainMenu, footer {visibility: hidden;}
+/* Don't hide the header itself - it contains the button that re-expands a
+   collapsed sidebar. Make it blend into the background instead, and make
+   sure that control stays visible and legible on our dark theme. */
+header[data-testid="stHeader"] {
+    background: transparent;
+}
+/* The sidebar re-expand/collapse control. Streamlit has renamed this
+   testid before (stSidebarCollapsedControl -> stSidebarCollapseButton in
+   1.38), so we target both the current and prior testid, plus an
+   aria-label based fallback that doesn't depend on Streamlit's internal
+   naming at all. Belt-and-suspenders since a silent rename here is exactly
+   what broke this the first time. */
+[data-testid="stSidebarCollapseButton"],
+[data-testid="stSidebarCollapsedControl"],
+button[aria-label*="sidebar" i],
+[data-testid="stSidebar"] [data-testid="baseButton-headerNoPadding"] {
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: flex !important;
+    color: var(--text) !important;
+    z-index: 999 !important;
+}
+[data-testid="stSidebarCollapseButton"] *,
+[data-testid="stSidebarCollapsedControl"] *,
+button[aria-label*="sidebar" i] * {
+    color: var(--text) !important;
+    fill: var(--text) !important;
+    stroke: var(--text) !important;
+}
 
 /* Headings use the display face */
 h1, h2, h3 {
@@ -44,7 +73,7 @@ h1, h2, h3 {
 
 /* Sidebar = "control panel" */
 section[data-testid="stSidebar"] {
-    background: #0D1830;
+    background: #0D1830 !important;
     border-right: 1px solid var(--border);
 }
 section[data-testid="stSidebar"] .stMarkdown p {
@@ -53,6 +82,19 @@ section[data-testid="stSidebar"] .stMarkdown p {
     text-transform: uppercase;
     letter-spacing: 0.08em;
 }
+/* Actual widget labels ("Route", "Transport mode", ...) - a different
+   element from the .stMarkdown text above, and the one that was actually
+   invisible: Streamlit renders these via stWidgetLabel, not stMarkdown. */
+section[data-testid="stSidebar"] [data-testid="stWidgetLabel"] p,
+section[data-testid="stSidebar"] label {
+    color: var(--text) !important;
+    font-size: 0.82rem !important;
+    opacity: 1 !important;
+}
+/* Catch-all: any text directly in the sidebar defaults to readable, bright */
+section[data-testid="stSidebar"] * {
+    color: var(--text);
+}
 
 /* Manifest header strip */
 .manifest-header {
@@ -60,23 +102,36 @@ section[data-testid="stSidebar"] .stMarkdown p {
     justify-content: space-between;
     align-items: baseline;
     border-bottom: 1px solid var(--border);
-    padding-bottom: 14px;
-    margin-bottom: 22px;
+    padding-bottom: 22px;
+    margin-bottom: 30px;
 }
 .manifest-title {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.9rem;
+    font-size: 3.1rem;
     font-weight: 700;
     color: var(--text);
+    letter-spacing: -0.02em;
     margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.manifest-title::before {
+    content: "";
+    display: inline-block;
+    width: 10px;
+    height: 34px;
+    background: var(--accent-low);
+    border-radius: 2px;
+    flex-shrink: 0;
 }
 .manifest-subtitle {
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.72rem;
+    font-size: 0.82rem;
     color: var(--text-dim);
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    margin-top: 4px;
+    margin-top: 6px;
 }
 .manifest-tag {
     font-family: 'IBM Plex Mono', monospace;
@@ -112,9 +167,10 @@ section[data-testid="stSidebar"] .stMarkdown p {
 }
 .kpi-value {
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 1.65rem;
+    font-size: 1.5rem;
     font-weight: 600;
     color: var(--text);
+    white-space: nowrap;
 }
 .kpi-sub {
     font-family: 'IBM Plex Mono', monospace;
@@ -203,6 +259,91 @@ hr { border-color: var(--border) !important; }
     font-family: 'IBM Plex Mono', monospace;
     color: var(--text);
 }
+
+/* --- Native widget chrome ---
+   config.toml sets the base dark theme, but we pin the specifics here so
+   the app never reverts to Streamlit's default light widget background or
+   red (#FF4B4B) primary color if the theme file is missing or not picked
+   up. Multiple selector variants are included because Streamlit's internal
+   testids/BaseWeb classes shift between versions. */
+section[data-testid="stSidebar"] [data-baseweb="select"] > div,
+section[data-testid="stSidebar"] [data-baseweb="input"],
+section[data-testid="stSidebar"] [data-baseweb="input"] input,
+section[data-testid="stSidebar"] [data-baseweb="base-input"],
+section[data-testid="stSidebar"] [data-testid="stDateInput"] input,
+section[data-testid="stSidebar"] [data-testid="stMultiSelect"] > div {
+    box-sizing: border-box !important;
+    background-color: var(--panel) !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+}
+/* Multiselect pills - Streamlit default is red; force our accent instead */
+span[data-baseweb="tag"],
+section[data-testid="stSidebar"] span[data-baseweb="tag"] {
+    background-color: var(--accent-blue) !important;
+    border-color: var(--accent-blue) !important;
+}
+span[data-baseweb="tag"] * {
+    color: #0A1220 !important;
+}
+/* Dropdown / calendar popovers render in a portal outside the sidebar DOM,
+   so these are NOT scoped to section[data-testid="stSidebar"]. */
+div[data-baseweb="popover"] div[data-baseweb="menu"],
+div[data-baseweb="popover"] ul,
+div[data-baseweb="calendar"],
+div[data-baseweb="calendar"] * {
+    background-color: var(--panel) !important;
+    color: var(--text) !important;
+}
+/* BaseWeb sets each dropdown option's text color directly on the option
+   element rather than relying on inheritance from its parent list, so the
+   rule above alone doesn't reliably reach it - force it explicitly here. */
+div[data-baseweb="popover"] li,
+div[data-baseweb="popover"] li *,
+div[data-baseweb="popover"] [role="option"],
+div[data-baseweb="popover"] [role="option"] * {
+    color: var(--text) !important;
+    background-color: var(--panel) !important;
+    opacity: 1 !important;
+}
+div[data-baseweb="popover"] li:hover,
+div[data-baseweb="popover"] [role="option"]:hover {
+    background-color: var(--panel-alt) !important;
+}
+
+/* Buttons (download button, any st.button) - visible at rest, not just on
+   hover. Covers both the classic wrapper classes and newer stBaseButton
+   testids. */
+.stButton > button,
+.stDownloadButton > button,
+[data-testid="stDownloadButton"] button,
+[data-testid^="stBaseButton"],
+button[kind="secondary"],
+button[kind="primary"] {
+    background-color: var(--panel) !important;
+    color: var(--accent-low) !important;
+    border: 1px solid var(--accent-low) !important;
+    font-family: 'IBM Plex Mono', monospace;
+    opacity: 1 !important;
+}
+.stButton > button *,
+.stDownloadButton > button *,
+[data-testid="stDownloadButton"] button *,
+[data-testid^="stBaseButton"] * {
+    color: var(--accent-low) !important;
+}
+.stButton > button:hover,
+.stDownloadButton > button:hover,
+[data-testid="stDownloadButton"] button:hover,
+[data-testid^="stBaseButton"]:hover {
+    background-color: var(--accent-low) !important;
+}
+.stButton > button:hover *,
+.stDownloadButton > button:hover *,
+[data-testid="stDownloadButton"] button:hover *,
+[data-testid^="stBaseButton"]:hover * {
+    color: #0A1220 !important;
+}
 </style>
 """
 
@@ -213,7 +354,7 @@ COLORS = {
     "panel": "#121D33",
     "border": "#24344F",
     "text": "#E8EDF5",
-    "text_dim": "#8296B8",
+    "text_dim": "#9FB0CC",
     "high": "#FF5A3C",
     "medium": "#F0B429",
     "low": "#35D0B8",
@@ -227,11 +368,10 @@ PLOTLY_LAYOUT = dict(
     paper_bgcolor=COLORS["panel"],
     plot_bgcolor=COLORS["panel"],
     font=dict(family="IBM Plex Mono, monospace", color=COLORS["text"], size=12),
-    # NOTE: deliberately no top-level "title_font" here. Chart titles are
-    # rendered via the custom HTML "section-title" header above each panel,
-    # not Plotly's built-in title. Setting title_font without a title.text
-    # makes Plotly's JS render the literal word "undefined" where the title
-    # would go - this bit us once, don't reintroduce it.
+    # Belt-and-suspenders against the "undefined" title bug: explicitly empty
+    # title.text rather than leaving title unset (Plotly's magic-underscore
+    # notation can implicitly create a title object with no text otherwise).
+    title=dict(text=""),
     legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(color=COLORS["text_dim"])),
     xaxis=dict(gridcolor=COLORS["border"], zerolinecolor=COLORS["border"], color=COLORS["text_dim"]),
     yaxis=dict(gridcolor=COLORS["border"], zerolinecolor=COLORS["border"], color=COLORS["text_dim"]),

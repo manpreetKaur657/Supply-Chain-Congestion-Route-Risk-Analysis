@@ -17,7 +17,7 @@ from theme import CSS, COLORS, RISK_COLOR_MAP, STATUS_COLOR_MAP, style_fig
 
 # ---------------------------------------------------------------- CONFIG
 st.set_page_config(
-    page_title="Supply Chain Congestion and Route Risk Analysis",
+    page_title="Supply Chain Congestion and Route Risk",
     page_icon="🛰",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -25,23 +25,29 @@ st.set_page_config(
 st.markdown(CSS, unsafe_allow_html=True)
 
 # Matplotlib / Seaborn dark theme to match Plotly
-plt.rcParams.update({
-    "figure.facecolor": COLORS["panel"],
-    "axes.facecolor": COLORS["panel"],
-    "axes.edgecolor": COLORS["border"],
-    "axes.labelcolor": COLORS["text_dim"],
-    "text.color": COLORS["text"],
-    "xtick.color": COLORS["text_dim"],
-    "ytick.color": COLORS["text_dim"],
-    "grid.color": COLORS["border"],
-    "font.family": "monospace",
-    "axes.grid": True,
-    "grid.alpha": 0.4,
-})
+# Matplotlib / Seaborn dark theme to match Plotly.
+# IMPORTANT: sns.set_style() applies its *entire* built-in preset (not just
+# the keys we pass it), so it must run BEFORE our rcParams.update() below -
+# otherwise it silently overwrites our text/tick/label colors with its own
+# light-background defaults, which is what made chart text unreadable.
 sns.set_style("darkgrid", {
     "axes.facecolor": COLORS["panel"],
     "figure.facecolor": COLORS["panel"],
     "grid.color": COLORS["border"],
+})
+plt.rcParams.update({
+    "figure.facecolor": COLORS["panel"],
+    "axes.facecolor": COLORS["panel"],
+    "axes.edgecolor": COLORS["border"],
+    "axes.labelcolor": COLORS["text"],
+    "text.color": COLORS["text"],
+    "xtick.color": COLORS["text"],
+    "ytick.color": COLORS["text"],
+    "grid.color": COLORS["border"],
+    "font.family": "monospace",
+    "axes.grid": True,
+    "grid.alpha": 0.4,
+    "legend.labelcolor": COLORS["text"],
 })
 
 # ---------------------------------------------------------------- DATA
@@ -52,47 +58,112 @@ def get_data():
 df_raw = get_data()
 
 # ---------------------------------------------------------------- SIDEBAR
-st.sidebar.markdown("### Filters")
+# A custom, code-controlled toggle rather than relying on Streamlit's own
+# collapse arrow (whose internal testid has changed between versions and
+# proved unreliable to target with CSS). This button lives in the main
+# area, so it's always reachable no matter what state the sidebar is in.
+if "sidebar_open" not in st.session_state:
+    st.session_state.sidebar_open = True
+
+
+def _toggle_sidebar():
+    st.session_state.sidebar_open = not st.session_state.sidebar_open
+
+
+toggle_col, _ = st.columns([0.08, 0.92])
+with toggle_col:
+    st.button(
+        "☰ Filters" if not st.session_state.sidebar_open else "✕ Hide",
+        on_click=_toggle_sidebar,
+        key="sidebar_toggle_btn",
+        help="Show or hide the filter sidebar",
+    )
+
+# Force the sidebar's actual visibility from OUR session_state, not
+# Streamlit's own internal aria-expanded flag. That flag is set by
+# Streamlit's native collapse arrow and doesn't reset just because Python
+# stops/starts rendering content into the sidebar - if the sidebar was ever
+# collapsed via the native arrow, it stays visually collapsed regardless of
+# what we render, unless we override it directly like this.
+if st.session_state.sidebar_open:
+    st.markdown(
+        """
+        <style>
+        [data-testid="stSidebar"] {
+            display: block !important;
+            visibility: visible !important;
+            margin-left: 0 !important;
+            transform: none !important;
+            width: 21rem !important;
+            min-width: 21rem !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+else:
+    st.markdown(
+        '<style>[data-testid="stSidebar"] { display: none !important; }</style>',
+        unsafe_allow_html=True,
+    )
 
 date_min, date_max = df_raw["Order_Date"].min().date(), df_raw["Order_Date"].max().date()
-date_range = st.sidebar.date_input(
-    "Order date range", value=(date_min, date_max), min_value=date_min, max_value=date_max
-)
-
 routes = sorted(df_raw["Route"].unique())
-sel_routes = st.sidebar.multiselect("Route", routes, default=routes)
-
 modes = sorted(df_raw["Transportation_Mode"].unique())
-sel_modes = st.sidebar.multiselect("Transport mode", modes, default=modes)
-
 categories = sorted(df_raw["Product_Category"].unique())
-sel_categories = st.sidebar.multiselect("Product category", categories, default=categories)
-
 risk_bands = ["Low", "Medium", "High"]
-sel_risk = st.sidebar.multiselect("Risk band", risk_bands, default=risk_bands)
 
-only_disrupted = st.sidebar.checkbox("Disrupted orders only", value=False)
+if st.session_state.sidebar_open:
+    st.sidebar.markdown("### Filters")
+    st.sidebar.date_input(
+        "Order date range", value=(date_min, date_max), min_value=date_min, max_value=date_max,
+        key="date_range_input",
+    )
+    st.sidebar.multiselect("Route (blank = all)", routes, default=[], key="sel_routes")
+    st.sidebar.multiselect("Transport mode (blank = all)", modes, default=[], key="sel_modes")
+    st.sidebar.multiselect("Product category (blank = all)", categories, default=[], key="sel_categories")
+    st.sidebar.multiselect("Risk band (blank = all)", risk_bands, default=[], key="sel_risk")
+    st.sidebar.checkbox("Disrupted orders only", value=False, key="only_disrupted_cb")
 
-st.sidebar.markdown("---")
-st.sidebar.markdown(
-    f"<span style='font-family:IBM Plex Mono, monospace; font-size:0.7rem; color:{COLORS['text_dim']};'>"
-    f"Dataset: {len(df_raw):,} orders · {date_min} — {date_max}</span>",
-    unsafe_allow_html=True,
-)
+    st.sidebar.markdown("---")
+    st.sidebar.markdown(
+        f"<span style='font-family:IBM Plex Mono, monospace; font-size:0.7rem; color:{COLORS['text_dim']};'>"
+        f"Dataset: {len(df_raw):,} orders · {date_min} — {date_max}</span>",
+        unsafe_allow_html=True,
+    )
 
-# Apply filters
-if isinstance(date_range, tuple) and len(date_range)==2:
+# Read from session_state rather than the widgets' direct return values, so
+# filters stay applied even on runs where the sidebar (and its widgets)
+# aren't rendered at all.
+date_range = st.session_state.get("date_range_input", (date_min, date_max))
+sel_routes = st.session_state.get("sel_routes", [])
+sel_modes = st.session_state.get("sel_modes", [])
+sel_categories = st.session_state.get("sel_categories", [])
+sel_risk = st.session_state.get("sel_risk", [])
+only_disrupted = st.session_state.get("only_disrupted_cb", False)
+
+# Apply filters. An empty multiselect means "no filter" (show all) rather
+# than "match nothing" - this also keeps every multiselect empty by default
+# so it never has to render a full row of pills (Streamlit's multiselect
+# clips/misrenders when many items are pre-selected - see
+# github.com/streamlit/streamlit/issues/9085).
+if isinstance(date_range, tuple) and len(date_range) == 2:
     start_date, end_date = date_range
 else:
     start_date, end_date = date_min, date_max
 
+route_filter = df_raw["Route"].isin(sel_routes) if sel_routes else True
+mode_filter = df_raw["Transportation_Mode"].isin(sel_modes) if sel_modes else True
+category_filter = df_raw["Product_Category"].isin(sel_categories) if sel_categories else True
+risk_filter = df_raw["Risk_Band"].isin(sel_risk) if sel_risk else True
+
 mask = (
     (df_raw["Order_Date"].dt.date >= start_date)
     & (df_raw["Order_Date"].dt.date <= end_date)
-    & (df_raw["Route"].isin(sel_routes))
-    & (df_raw["Transportation_Mode"].isin(sel_modes))
-    & (df_raw["Product_Category"].isin(sel_categories))
-    & (df_raw["Risk_Band"].isin(sel_risk))
+    & route_filter
+    & mode_filter
+    & category_filter
+    & risk_filter
 )
 df = df_raw[mask].copy()
 if only_disrupted:
@@ -102,8 +173,8 @@ if only_disrupted:
 st.markdown(
     f"""
     <div class="manifest-header">
-        <div>
-            <p class="manifest-title">Supply Chain Congestion and Route Risk Analysis</p>
+        <div> 
+            <p class="manifest-title">Supply Chain Congestion and Route Risk</p>
             <p class="manifest-subtitle">Congestion &amp; route risk monitor · 6 active lanes</p>
         </div>
         <div class="manifest-tag">● LIVE FILTER: {len(df):,} ORDERS</div>
@@ -344,6 +415,7 @@ with tab_disrupt:
         )
         ax.tick_params(labelsize=8)
         plt.setp(ax.get_xticklabels(), rotation=15, ha="right")
+        ax.set_facecolor(COLORS["panel"])
         fig.patch.set_facecolor(COLORS["panel"])
         st.pyplot(fig, use_container_width=True)
     st.markdown("</div>", unsafe_allow_html=True)
