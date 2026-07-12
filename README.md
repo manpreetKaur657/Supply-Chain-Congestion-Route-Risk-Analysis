@@ -3,6 +3,9 @@
 A Streamlit dashboard for exploring delay, cost, disruption and composite
 route-risk patterns across your 6 active shipping lanes.
 
+## Live Demo
+**Dashboard:** https://supply-chain-congestion-route-risk-analysis-sblpqohzql7xtfji3b.streamlit.app/
+
 ## Files
 - `app.py` — the Streamlit app (run this)
 - `data_utils.py` — feature engineering (route risk score, cost/kg, delay %, etc.)
