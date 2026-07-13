@@ -72,9 +72,19 @@ h1, h2, h3 {
 }
 
 /* Sidebar = "control panel" */
-section[data-testid="stSidebar"] {
-    background: #0D1830 !important;
-    border-right: 1px solid var(--border);
+section[data-testid="stSidebar"]{
+    background:linear-gradient(
+        180deg,
+        #0D1830 0%,
+        #101D35 45%,
+        #0D1830 100%
+    ) !important;
+
+    border-right:1px solid rgba(91,141,239,.25);
+
+    box-shadow:
+        inset -1px 0 0 rgba(255,255,255,.03),
+        8px 0 30px rgba(0,0,0,.25);
 }
 section[data-testid="stSidebar"] .stMarkdown p {
     color: var(--text-dim);
@@ -90,6 +100,20 @@ section[data-testid="stSidebar"] label {
     color: var(--text) !important;
     font-size: 0.82rem !important;
     opacity: 1 !important;
+}
+section[data-testid="stSidebar"] [data-testid="stWidgetLabel"]{
+    margin-top:18px;
+    margin-bottom:6px;
+}
+section[data-testid="stSidebar"] [data-baseweb="select"] > div{
+    border-radius:8px !important;
+    min-height:48px;
+    transition:all .2s ease;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
+}
+
+section[data-testid="stSidebar"] [data-baseweb="select"] > div:hover{
+    border-color: var(--accent-blue) !important;
 }
 /* Catch-all: any text directly in the sidebar defaults to readable, bright */
 section[data-testid="stSidebar"] * {
@@ -116,7 +140,7 @@ section[data-testid="stSidebar"] * {
     display: flex;
     align-items: center;
     gap: 12px;
-    flex-shrink: nowwrap;
+    flex-shrink: 0;
 }
 .manifest-title::before {
     content: "";
