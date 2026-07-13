@@ -116,12 +116,13 @@ section[data-testid="stSidebar"] * {
     display: flex;
     align-items: center;
     gap: 12px;
+    flex-shrink: nowwrap;
 }
 .manifest-title::before {
     content: "";
     display: inline-block;
     width: 10px;
-    height: 52px;
+    height: 58px;
     background: var(--accent-low);
     border-radius: 2px;
     flex-shrink: 0;
