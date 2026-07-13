@@ -105,6 +105,36 @@ section[data-testid="stSidebar"] * {
     color: var(--text);
 }
 
+/* Sidebar header - replaces the emoji that rendered as a broken glyph
+   (Space Grotesk has no emoji glyphs and fallback wasn't reliable across
+   browsers) with a small CSS-drawn accent icon matching the main title. */
+section[data-testid="stSidebar"] .sidebar-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text) !important;
+    margin: 4px 0 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+section[data-testid="stSidebar"] .sidebar-title::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 22px;
+    background: var(--accent-low);
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+section[data-testid="stSidebar"] .sidebar-subtitle {
+    color: var(--text-dim) !important;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 0 0 10px 0;
+}
+
 /* Dividers between filter groups + a themed checkbox instead of the
    default browser-style box, requested as the remaining sidebar polish. */
 section[data-testid="stSidebar"] .sidebar-divider {
