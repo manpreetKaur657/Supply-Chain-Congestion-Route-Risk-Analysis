@@ -114,7 +114,10 @@ categories = sorted(df_raw["Product_Category"].unique())
 risk_bands = ["Low", "Medium", "High"]
 
 if st.session_state.sidebar_open:
-    st.sidebar.markdown("### Filters")
+    st.sidebar.markdown("""
+    ## 🎛 Control Panel
+    Adjust filters to analyze different supply chain scenarios.
+    """)
     st.sidebar.date_input(
         "Order date range", value=(date_min, date_max), min_value=date_min, max_value=date_max,
         key="date_range_input",
