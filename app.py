@@ -517,5 +517,4 @@ with tab_data:
     st.dataframe(df[display_cols].sort_values("Order_Date", ascending=False), use_container_width=True, height=430)
     csv = df[display_cols].to_csv(index=False).encode("utf-8")
     st.download_button("Download filtered data as CSV", csv, "filtered_supply_chain.csv", "text/csv")
-    st.markdown("</div>", unsafe_allow_html=True)y_chain.csv", "text/csv")
     st.markdown("</div>", unsafe_allow_html=True)
