@@ -96,11 +96,13 @@ categories = sorted(df_raw["Product_Category"].unique())
 risk_bands = ["Low", "Medium", "High"]
 
 if st.session_state.sidebar_open:
-    st.sidebar.markdown("""
-    ## 🎛 Command Filters
-
-    Configure the operational view below.
-    """)
+    st.sidebar.markdown(
+        "<p class='sidebar-title'>Command Filters</p>"
+        "<p class='sidebar-subtitle'>Configure the operational view below.</p>",
+        unsafe_allow_html=True,
+    )
+    st.sidebar.checkbox("Disrupted orders only", value=False, key="only_disrupted_cb")
+    st.sidebar.markdown("<div class='sidebar-divider'></div>", unsafe_allow_html=True)
     st.sidebar.date_input(
         "Order date range", value=(date_min, date_max), min_value=date_min, max_value=date_max,
         key="date_range_input",
@@ -113,8 +115,6 @@ if st.session_state.sidebar_open:
     st.sidebar.multiselect("Product category (blank = all)", categories, default=[], key="sel_categories")
     st.sidebar.markdown("<div class='sidebar-divider'></div>", unsafe_allow_html=True)
     st.sidebar.multiselect("Risk band (blank = all)", risk_bands, default=[], key="sel_risk")
-    st.sidebar.markdown("<div class='sidebar-divider'></div>", unsafe_allow_html=True)
-    st.sidebar.checkbox("Disrupted orders only", value=False, key="only_disrupted_cb")
 
     st.sidebar.markdown("---")
     st.sidebar.markdown(
