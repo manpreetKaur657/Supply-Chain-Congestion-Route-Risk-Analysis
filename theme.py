@@ -110,6 +110,7 @@ section[data-testid="stSidebar"] * {
     font-size: 3.2rem !important;
     font-weight: 700 !important;
     color: var(--text) !important;
+    line-height: 1.15;
     letter-spacing: -0.02em;
     margin: 0;
     display: flex;
@@ -120,7 +121,7 @@ section[data-testid="stSidebar"] * {
     content: "";
     display: inline-block;
     width: 10px;
-    height: 42px;
+    height: 52px;
     background: var(--accent-low);
     border-radius: 2px;
     flex-shrink: 0;
