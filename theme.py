@@ -107,7 +107,7 @@ section[data-testid="stSidebar"] * {
 }
 .manifest-title {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 4rem !important;
+    font-size: 3.2rem !important;
     font-weight: 700 !important;
     color: var(--text) !important;
     letter-spacing: -0.02em;
@@ -120,7 +120,7 @@ section[data-testid="stSidebar"] * {
     content: "";
     display: inline-block;
     width: 10px;
-    height: 34px;
+    height: 42px;
     background: var(--accent-low);
     border-radius: 2px;
     flex-shrink: 0;
