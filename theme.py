@@ -105,6 +105,29 @@ section[data-testid="stSidebar"] * {
     color: var(--text);
 }
 
+/* Dividers between filter groups + a themed checkbox instead of the
+   default browser-style box, requested as the remaining sidebar polish. */
+section[data-testid="stSidebar"] .sidebar-divider {
+    border-top: 1px solid var(--border);
+    margin: 18px 0 16px 0;
+    height: 0;
+}
+section[data-testid="stSidebar"] [data-testid="stCheckbox"] {
+    margin-top: 4px;
+}
+section[data-testid="stSidebar"] [data-testid="stCheckbox"] label span[data-baseweb="checkbox"] > div:first-child {
+    background-color: var(--panel) !important;
+    border-color: var(--accent-low) !important;
+    border-width: 1.5px !important;
+    border-radius: 4px !important;
+}
+section[data-testid="stSidebar"] [data-testid="stCheckbox"] input:checked ~ span[data-baseweb="checkbox"] > div:first-child {
+    background-color: var(--accent-low) !important;
+}
+section[data-testid="stSidebar"] [data-testid="stCheckbox"] p {
+    font-size: 0.82rem !important;
+}
+
 .manifest-header {
     display: flex;
     justify-content: space-between;
