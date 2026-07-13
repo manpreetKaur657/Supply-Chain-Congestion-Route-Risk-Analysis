@@ -222,18 +222,31 @@ section[data-testid="stSidebar"] * {
     gap: 4px;
     border-bottom: 1px solid var(--border);
 }
+
 .stTabs [data-baseweb="tab"] {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.78rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: var(--text-dim);
-    background: transparent;
+    color: var(--text-dim) !important;
+    background: transparent !important;
     padding: 8px 14px;
+    opacity: 1 !important;
 }
+
+.stTabs [data-baseweb="tab"] * {
+    color: var(--text-dim) !important;
+    opacity: 1 !important;
+}
+
 .stTabs [aria-selected="true"] {
     color: var(--accent-low) !important;
     border-bottom: 2px solid var(--accent-low) !important;
+    opacity: 1 !important;
+}
+
+.stTabs [aria-selected="true"] * {
+    color: var(--accent-low) !important;
 }
 
 /* Panels around charts */
