@@ -218,35 +218,25 @@ section[data-testid="stSidebar"] * {
 .risk-badge.low .dot { background: var(--accent-low); }
 
 /* Tabs */
-.stTabs [data-baseweb="tab-list"] {
-    gap: 4px;
-    border-bottom: 1px solid var(--border);
-}
-
-.stTabs [data-baseweb="tab"] {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.78rem;
+.stTabs [data-testid="stTab"] {
+    font-family: 'IBM Plex Mono', monospace !important;
+    font-size: 0.78rem !important;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: var(--text-dim) !important;
-    background: transparent !important;
+    color: var(--text) !important;
+    opacity: 0.75;
     padding: 8px 14px;
-    opacity: 1 !important;
 }
 
-.stTabs [data-baseweb="tab"] * {
-    color: var(--text-dim) !important;
-    opacity: 1 !important;
-}
-
-.stTabs [aria-selected="true"] {
+.stTabs [data-testid="stTab"][aria-selected="true"] {
     color: var(--accent-low) !important;
+    opacity: 1;
     border-bottom: 2px solid var(--accent-low) !important;
-    opacity: 1 !important;
 }
 
-.stTabs [aria-selected="true"] * {
-    color: var(--accent-low) !important;
+.stTabs [data-testid="stTab"][aria-selected="false"] {
+    color: var(--text) !important;
+    opacity: 0.75;
 }
 
 /* Panels around charts */
