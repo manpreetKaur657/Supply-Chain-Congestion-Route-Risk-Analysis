@@ -107,7 +107,7 @@ section[data-testid="stSidebar"] * {
 }
 .manifest-title {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 3.1rem;
+    font-size: 3.8rem;
     font-weight: 700;
     color: var(--text);
     letter-spacing: -0.02em;
@@ -127,7 +127,7 @@ section[data-testid="stSidebar"] * {
 }
 .manifest-subtitle {
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.82rem;
+    font-size: 0.95rem;
     color: var(--text-dim);
     letter-spacing: 0.06em;
     text-transform: uppercase;
