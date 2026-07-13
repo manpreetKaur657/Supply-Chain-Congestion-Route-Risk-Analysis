@@ -24,12 +24,6 @@ st.set_page_config(
 )
 st.markdown(CSS, unsafe_allow_html=True)
 
-# Matplotlib / Seaborn dark theme to match Plotly
-# Matplotlib / Seaborn dark theme to match Plotly.
-# IMPORTANT: sns.set_style() applies its *entire* built-in preset (not just
-# the keys we pass it), so it must run BEFORE our rcParams.update() below -
-# otherwise it silently overwrites our text/tick/label colors with its own
-# light-background defaults, which is what made chart text unreadable.
 sns.set_style("darkgrid", {
     "axes.facecolor": COLORS["panel"],
     "figure.facecolor": COLORS["panel"],
@@ -50,18 +44,12 @@ plt.rcParams.update({
     "legend.labelcolor": COLORS["text"],
 })
 
-# ---------------------------------------------------------------- DATA
 @st.cache_data
 def get_data():
     return load_data("cleaned_supply_chain.csv")
 
 df_raw = get_data()
 
-# ---------------------------------------------------------------- SIDEBAR
-# A custom, code-controlled toggle rather than relying on Streamlit's own
-# collapse arrow (whose internal testid has changed between versions and
-# proved unreliable to target with CSS). This button lives in the main
-# area, so it's always reachable no matter what state the sidebar is in.
 if "sidebar_open" not in st.session_state:
     st.session_state.sidebar_open = True
 
@@ -79,12 +67,6 @@ with toggle_col:
         help="Show or hide the filter sidebar",
     )
 
-# Force the sidebar's actual visibility from OUR session_state, not
-# Streamlit's own internal aria-expanded flag. That flag is set by
-# Streamlit's native collapse arrow and doesn't reset just because Python
-# stops/starts rendering content into the sidebar - if the sidebar was ever
-# collapsed via the native arrow, it stays visually collapsed regardless of
-# what we render, unless we override it directly like this.
 if st.session_state.sidebar_open:
     st.markdown(
         """
@@ -123,10 +105,15 @@ if st.session_state.sidebar_open:
         "Order date range", value=(date_min, date_max), min_value=date_min, max_value=date_max,
         key="date_range_input",
     )
+    st.sidebar.markdown("<div class='sidebar-divider'></div>", unsafe_allow_html=True)
     st.sidebar.multiselect("Route (blank = all)", routes, default=[], key="sel_routes")
+    st.sidebar.markdown("<div class='sidebar-divider'></div>", unsafe_allow_html=True)
     st.sidebar.multiselect("Transport mode (blank = all)", modes, default=[], key="sel_modes")
+    st.sidebar.markdown("<div class='sidebar-divider'></div>", unsafe_allow_html=True)
     st.sidebar.multiselect("Product category (blank = all)", categories, default=[], key="sel_categories")
+    st.sidebar.markdown("<div class='sidebar-divider'></div>", unsafe_allow_html=True)
     st.sidebar.multiselect("Risk band (blank = all)", risk_bands, default=[], key="sel_risk")
+    st.sidebar.markdown("<div class='sidebar-divider'></div>", unsafe_allow_html=True)
     st.sidebar.checkbox("Disrupted orders only", value=False, key="only_disrupted_cb")
 
     st.sidebar.markdown("---")
@@ -136,9 +123,6 @@ if st.session_state.sidebar_open:
         unsafe_allow_html=True,
     )
 
-# Read from session_state rather than the widgets' direct return values, so
-# filters stay applied even on runs where the sidebar (and its widgets)
-# aren't rendered at all.
 date_range = st.session_state.get("date_range_input", (date_min, date_max))
 sel_routes = st.session_state.get("sel_routes", [])
 sel_modes = st.session_state.get("sel_modes", [])
@@ -146,11 +130,6 @@ sel_categories = st.session_state.get("sel_categories", [])
 sel_risk = st.session_state.get("sel_risk", [])
 only_disrupted = st.session_state.get("only_disrupted_cb", False)
 
-# Apply filters. An empty multiselect means "no filter" (show all) rather
-# than "match nothing" - this also keeps every multiselect empty by default
-# so it never has to render a full row of pills (Streamlit's multiselect
-# clips/misrenders when many items are pre-selected - see
-# github.com/streamlit/streamlit/issues/9085).
 if isinstance(date_range, tuple) and len(date_range) == 2:
     start_date, end_date = date_range
 else:
@@ -173,7 +152,6 @@ df = df_raw[mask].copy()
 if only_disrupted:
     df = df[df["Is_Disrupted"]]
 
-# ---------------------------------------------------------------- HEADER
 st.markdown(
     f"""
     <div class="manifest-header">
@@ -191,17 +169,11 @@ if df.empty:
     st.warning("No orders match the current filters. Widen a filter in the sidebar.")
     st.stop()
 
-# ---------------------------------------------------------------- KPI ROW
 k = kpi_summary(df)
 
 
 def kpi_card(label, value, sub="", kind=""):
     cls = f"kpi-card {kind}".strip()
-    # Single-line HTML on purpose: Markdown treats an indented block that
-    # follows a blank line as a code block, even with unsafe_allow_html=True.
-    # Multi-line indented f-strings joined together produced exactly that
-    # blank line between cards - keeping each card's HTML on one line avoids
-    # it entirely, regardless of how the cards are joined afterward.
     return (f'<div class="{cls}"><div class="kpi-label">{label}</div>'
             f'<div class="kpi-value">{value}</div><div class="kpi-sub">{sub}</div></div>')
 
@@ -220,12 +192,10 @@ cards_html = "<div class='kpi-row'>" + "".join([
 ]) + "</div>"
 st.markdown(cards_html, unsafe_allow_html=True)
 
-# ---------------------------------------------------------------- TABS
 tab_overview, tab_risk, tab_disrupt, tab_mitig, tab_cost, tab_data = st.tabs(
     ["Command Deck", "Route Risk", "Disruptions", "Mitigation", "Cost & Mode", "Data Explorer"]
 )
 
-# ================================================================= TAB 1
 with tab_overview:
     col1, col2 = st.columns([1.3, 1])
 
@@ -293,7 +263,6 @@ with tab_overview:
         st.plotly_chart(style_fig(fig, 300), use_container_width=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
-# ================================================================= TAB 2
 with tab_risk:
     st.markdown("<div class='chart-panel'>", unsafe_allow_html=True)
     st.markdown("<p class='section-eyebrow'>Geography</p><p class='section-title'>Active Lanes by Composite Risk Score</p>",
@@ -367,7 +336,6 @@ with tab_risk:
         st.plotly_chart(style_fig(fig, 340), use_container_width=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
-# ================================================================= TAB 3
 with tab_disrupt:
     disrupted_df = df[df["Is_Disrupted"]]
     col1, col2 = st.columns([1, 1.3])
@@ -438,7 +406,6 @@ with tab_disrupt:
         st.plotly_chart(style_fig(fig, 320), use_container_width=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
-# ================================================================= TAB 4
 with tab_mitig:
     col1, col2 = st.columns(2)
     with col1:
@@ -495,7 +462,6 @@ with tab_mitig:
         st.pyplot(fig, use_container_width=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
-# ================================================================= TAB 5
 with tab_cost:
     col1, col2 = st.columns(2)
     with col1:
@@ -539,7 +505,6 @@ with tab_cost:
     st.plotly_chart(style_fig(fig, 300), use_container_width=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
-# ================================================================= TAB 6
 with tab_data:
     st.markdown("<div class='chart-panel'>", unsafe_allow_html=True)
     st.markdown("<p class='section-eyebrow'>Manifest</p><p class='section-title'>Filtered Order Records</p>",
@@ -552,4 +517,5 @@ with tab_data:
     st.dataframe(df[display_cols].sort_values("Order_Date", ascending=False), use_container_width=True, height=430)
     csv = df[display_cols].to_csv(index=False).encode("utf-8")
     st.download_button("Download filtered data as CSV", csv, "filtered_supply_chain.csv", "text/csv")
+    st.markdown("</div>", unsafe_allow_html=True)y_chain.csv", "text/csv")
     st.markdown("</div>", unsafe_allow_html=True)
