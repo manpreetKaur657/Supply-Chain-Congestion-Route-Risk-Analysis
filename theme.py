@@ -122,7 +122,7 @@ section[data-testid="stSidebar"] * {
     content: "";
     display: inline-block;
     width: 10px;
-    height: 58px;
+    height: 110px;
     background: var(--accent-low);
     border-radius: 2px;
     flex-shrink: 0;
