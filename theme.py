@@ -130,7 +130,7 @@ section[data-testid="stSidebar"] .sidebar-subtitle {
     font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    margin: 0 0 16px 0;
+    margin: 0 0 10px 0;
 }
 
 /* Dividers between filter groups + a themed checkbox instead of the
