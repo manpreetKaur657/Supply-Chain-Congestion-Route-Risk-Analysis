@@ -88,8 +88,8 @@ section[data-testid="stSidebar"] label {
     opacity: 1 !important;
 }
 section[data-testid="stSidebar"] [data-testid="stWidgetLabel"]{
-    margin-top:18px;
-    margin-bottom:6px;
+    margin-top:10px;
+    margin-bottom:4px;
 }
 section[data-testid="stSidebar"] [data-baseweb="select"] > div{
     border-radius:8px !important;
@@ -143,7 +143,8 @@ section[data-testid="stSidebar"] .sidebar-divider {
     height: 0;
 }
 section[data-testid="stSidebar"] [data-testid="stCheckbox"] {
-    margin-top: 4px;
+    margin-top: 0px;
+    margin-bottom: 6px;
 }
 section[data-testid="stSidebar"] [data-testid="stCheckbox"] label span[data-baseweb="checkbox"] > div:first-child {
     background-color: var(--panel) !important;
