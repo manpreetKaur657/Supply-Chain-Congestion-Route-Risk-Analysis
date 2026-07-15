@@ -110,11 +110,11 @@ if st.session_state.sidebar_open:
     st.sidebar.markdown("<div class='sidebar-divider'></div>", unsafe_allow_html=True)
     st.sidebar.multiselect("Route (blank = all)", routes, default=[], key="sel_routes")
     st.sidebar.markdown("<div class='sidebar-divider'></div>", unsafe_allow_html=True)
-    st.sidebar.multiselect("Transport mode (blank = all)", modes, default=[], key="sel_modes")
+    st.sidebar.multiselect("Transport mode", modes, default=[], key="sel_modes")
     st.sidebar.markdown("<div class='sidebar-divider'></div>", unsafe_allow_html=True)
-    st.sidebar.multiselect("Product category (blank = all)", categories, default=[], key="sel_categories")
+    st.sidebar.multiselect("Product category", categories, default=[], key="sel_categories")
     st.sidebar.markdown("<div class='sidebar-divider'></div>", unsafe_allow_html=True)
-    st.sidebar.multiselect("Risk band (blank = all)", risk_bands, default=[], key="sel_risk")
+    st.sidebar.multiselect("Risk band", risk_bands, default=[], key="sel_risk")
 
     st.sidebar.markdown("---")
     st.sidebar.markdown(
@@ -184,7 +184,7 @@ risk_kind = "good" if k["avg_risk"] < 40 else ("warn" if k["avg_risk"] < 66 else
 cards_html = "<div class='kpi-row'>" + "".join([
     kpi_card("Total Orders", f"{k['total_orders']:,}", "in current filter"),
     kpi_card("On-Time Rate", f"{k['on_time_rate']:.1f}%", "target ≥ 90%", on_time_kind),
-    kpi_card("Avg Delay", f"{k['avg_delay']:.2f}d", f"P90 = {k['p90_delay']:.0f}d"),
+    kpi_card("Avg Delay", f"{k['avg_delay']:.2f} Days", f"P90 = {k['p90_delay']:.0f}d"),
     kpi_card("Total Shipping Cost", f"${k['total_cost']/1e6:.2f}M", "sum of filtered orders"),
     kpi_card("Avg Route Risk Score", f"{k['avg_risk']:.1f}/100", "geo + weather + inflation", risk_kind),
     kpi_card("Disruption Rate", f"{k['disrupted_rate']:.1f}%", "of filtered orders",
@@ -302,7 +302,7 @@ with tab_risk:
     )
     st.plotly_chart(style_fig(fig, 440), use_container_width=True)
     st.markdown(
-        "<p class='kpi-sub'>Line thickness = order volume · color = risk band "
+        "<p class='kpi-sub'> · Line thickness = order volume · Color = risk band "
         "(<span style='color:%s'>low</span> / <span style='color:%s'>medium</span> / "
         "<span style='color:%s'>high</span>)</p>" % (COLORS["low"], COLORS["medium"], COLORS["high"]),
         unsafe_allow_html=True,
