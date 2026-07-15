@@ -88,7 +88,7 @@ section[data-testid="stSidebar"] label {
     opacity: 1 !important;
 }
 section[data-testid="stSidebar"] [data-testid="stWidgetLabel"]{
-    margin-top:10px;
+    margin-top:8px;
     margin-bottom:4px;
 }
 section[data-testid="stSidebar"] [data-baseweb="select"] > div{
