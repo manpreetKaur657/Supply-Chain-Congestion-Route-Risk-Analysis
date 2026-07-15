@@ -108,7 +108,7 @@ if st.session_state.sidebar_open:
         key="date_range_input",
     )
     st.sidebar.markdown("<div class='sidebar-divider'></div>", unsafe_allow_html=True)
-    st.sidebar.multiselect("Route (blank = all)", routes, default=[], key="sel_routes")
+    st.sidebar.multiselect("Route", routes, default=[], key="sel_routes")
     st.sidebar.markdown("<div class='sidebar-divider'></div>", unsafe_allow_html=True)
     st.sidebar.multiselect("Transport mode", modes, default=[], key="sel_modes")
     st.sidebar.markdown("<div class='sidebar-divider'></div>", unsafe_allow_html=True)
